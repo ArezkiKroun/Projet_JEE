@@ -17,7 +17,6 @@ import Checkbox from '@mui/material/Checkbox';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import Stack from '@mui/material/Stack';
 import UpdateIcon from '@mui/icons-material/Edit';
-import SnackBar from "../../SnackBar";
 export default function EditUser({data}) {
   const [open, setOpen] = React.useState(false);
 
@@ -30,7 +29,7 @@ export default function EditUser({data}) {
   };
 
 
-//Modifier les informations de l'article
+//Modifier les informations de l'utilisateur
 const [user, setUser] = useState({
     firstname: "",
     lastname: "",
@@ -48,6 +47,8 @@ console.log(user.firstname)
   useEffect(() => {
     loadUser();
   }, []);
+
+  //endpoint qui permet de modifier les informations de l'utilisateur
   let token = localStorage.getItem("tokentoken")
   const onSubmit = async (e) => {
     let config = {
@@ -58,28 +59,30 @@ console.log(user.firstname)
     e.preventDefault();
     await axios.put(`http://localhost:8888/api/v1/users/${data}`, user,config).then(res => {
       console.log("Success")
+      alert("✔️ L'utilisateur a été modifier avec succès!");
+    window.location.reload();
   }).catch(error => {
     console.log(error)
   });
-    alert("✔️ L'utilisateur a été modifier avec succès!");
-    window.location.reload();
+    
 
   };
 
-  //Récupérer les infos de l'article seléctionner
+  //Récupérer les infos de l'utilisateur seléctionner
   const loadUser = async () => {
     let config = {
       headers: {
         'Authorization': 'Bearer ' + token,
       }
     }
-    const result = await axios.get(`http://localhost:8888/api/v1/admin/users/${data}`,config).then(res => {
+    const result = await axios.get(`http://localhost:8888/api/v1/users/${data}`,config).then(res => {
       console.log("Success")
       setUser(res.data);
   }).catch(error => {
     console.log(error)
   });
   };
+
 
   return (
     <div>
@@ -91,8 +94,11 @@ console.log(user.firstname)
       
      
       <Dialog open={open} onClose={handleClose} >
-      
-        <DialogTitle>Modifier un utilisateur</DialogTitle>
+      <form onSubmit={(e) => onSubmit(e)}>
+      <div style={{ display:'flex', justifyContent:'center' }}>
+        <UpdateIcon sx={{ marginTop:'3%',backgroundColor:'none', color: blue[600] }} variant="outlined"></UpdateIcon>
+              <DialogTitle > Modifier le profil</DialogTitle>   
+              </div>
         <DialogContent>
           <React.Fragment >
       
@@ -126,10 +132,12 @@ console.log(user.firstname)
         </Grid>
        
         <Grid item xs={12}>
-          <TextField
+        <TextField
+          required
+            type={"email"}
             id="address2"
             name="email"
-            label="Address line 2"
+            label="Email"
             fullWidth
             autoComplete="shipping address-line2"
             variant="standard"
@@ -143,9 +151,9 @@ console.log(user.firstname)
         </DialogContent>
         <DialogActions>
           <Button  onClick={handleClose} style={{borderRadius:'12px' }}variant="outlined" color="error">Annuler</Button>
-          <Button onClick={onSubmit}  style={{borderRadius:'12px' }}variant="outlined" color="success"><SnackBar>Enregistrer</SnackBar></Button>
+          <Button type="submit" style={{borderRadius:'12px' }}variant="outlined" color="success">Enregistrer</Button>
         </DialogActions>
-       
+        </form>
       </Dialog>
     </div>
   );

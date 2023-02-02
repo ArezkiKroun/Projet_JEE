@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -12,58 +11,53 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
-import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
-import { blue, green ,yellow} from '@mui/material/colors';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import { blue, green, yellow } from '@mui/material/colors';
 import axios from "axios";
-const emails = ['username@gmail.com', 'user02@gmail.com'];
 
 export default function DetailUser({ data }) {
-console.log(data)
-function SimpleDialog(props) {
-  const { onClose, selectedValue, open } = props;
+  console.log(data)
+  function SimpleDialog(props) {
+    const { onClose, selectedValue, open } = props;
 
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
+    const handleClose = () => {
+      onClose(selectedValue);
+    };
 
-  const handleListItemClick = (value) => {
-    onClose(value);
-  };
+    //Recuperer les donnees des utilisateurs selectionner
+    const [user, setUser] = useState({
+      id: "",
+      lastname: "",
+      firstname: "",
+      email: "",
+      username: "",
+      role: "",
+    })
 
-   //Recuperer les donnees des utilisateurs selectionner
-   const [user, setUser] = useState({
-    id:"",
-    lastname: "",
-    firstname: "",
-    email: "",
-    username: "",
-    role:"",
-   })
+    useEffect(() => {
+      loadUser();
+    }, []);
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  let token = localStorage.getItem("tokentoken")
-  const loadUser = async () => {
-    let config = {
-      headers: {
-        'Authorization': 'Bearer ' + token,
+    //endpoint qui recupere l'utilisateur sélectionner
+    let token = localStorage.getItem("tokentoken")
+    const loadUser = async () => {
+      let config = {
+        headers: {
+          'Authorization': 'Bearer ' + token,
+        }
       }
-    }
-    const result = await axios.get(`http://localhost:8888/api/v1/admin/users/${data}`,config).then(res => {
-      console.log("Success")
-      setUser(res.data);
-  }).catch(error => {
-    console.log(error)
-  });
-  };
-  return (
-    <Dialog onClose={handleClose} open={open}>
-      <DialogTitle>Details</DialogTitle>
-      <List sx={{ pt: 0 }}>
+      await axios.get(`http://localhost:8888/api/v1/users/${data}`, config).then(res => {
+        console.log("Success")
+        setUser(res.data);
+      }).catch(error => {
+        console.log(error)
+      });
+    };
+
+    return (
+      <Dialog onClose={handleClose} open={open}>
+        <DialogTitle>Mon compte {user.role}</DialogTitle>
+        <List sx={{ pt: 0 }}>
           <ListItem disableGutters>
             <ListItemButton>
               <ListItemAvatar>
@@ -71,22 +65,22 @@ function SimpleDialog(props) {
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText  primary="Nom:" />
-              <ListItemText  primary={user.lastname} />
+              <ListItemText primary="Nom:" />
+              <ListItemText primary={user.lastname} />
             </ListItemButton>
-            </ListItem>
-            <ListItem disableGutters>
+          </ListItem>
+          <ListItem disableGutters>
             <ListItemButton>
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: green[100], color: green[600] }}>
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText  primary="Prénom:" />
+              <ListItemText primary="Prénom:" />
               <ListItemText primary={user.firstname} />
             </ListItemButton>
-            </ListItem>
-            <ListItem disableGutters>
+          </ListItem>
+          <ListItem disableGutters>
             <ListItemButton>
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: yellow[100], color: yellow[600] }}>
@@ -95,22 +89,20 @@ function SimpleDialog(props) {
               </ListItemAvatar>
               <ListItemText primary="Email: " />
               <ListItemText primary={user.email} />
-            </ListItemButton>           
+            </ListItemButton>
           </ListItem>
-      </List>
-    </Dialog>
-  );
-}
+        </List>
+      </Dialog>
+    );
+  }
 
-SimpleDialog.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
-};
-
+  SimpleDialog.propTypes = {
+    onClose: PropTypes.func.isRequired,
+    open: PropTypes.bool.isRequired,
+    selectedValue: PropTypes.string.isRequired,
+  };
 
   const [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState(emails[1]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -118,23 +110,19 @@ SimpleDialog.propTypes = {
 
   const handleClose = (value) => {
     setOpen(false);
-    setSelectedValue(value);
   };
-
-  
 
   return (
     <div>
       <Typography variant="subtitle1" component="div">
       </Typography>
-      <Button style={{borderRadius:'50%'}} >
-      <Avatar sx={{ bgcolor: green[100], color: green[600] }}>
-      <AssignmentIcon variant="outlined" onClick={handleClickOpen}>
-      </AssignmentIcon>
-                </Avatar>
-                </Button>
+      <Button style={{ borderRadius: '50%' }} >
+        <Avatar sx={{ bgcolor: green[100], color: green[600] }}>
+          <PersonIcon variant="outlined" onClick={handleClickOpen}>
+          </PersonIcon>
+        </Avatar>
+      </Button>
       <SimpleDialog
-        
         open={open}
         onClose={handleClose}
       />

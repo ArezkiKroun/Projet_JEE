@@ -1,19 +1,18 @@
-import * as React from 'react';
+import React from "react";
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
+import { useState } from 'react';
 import AddPhotoIcon from '@mui/icons-material/AddAPhoto';
-import Stack from '@mui/material/Stack';
+import axios from 'axios';
+import { Input, NativeSelect } from "@mui/material";
+
 export default function AddPicture() {
+
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -24,107 +23,132 @@ export default function AddPicture() {
     setOpen(false);
   };
 
+  const [fil, setFil] = useState('')
+
+  const handleImage = (e) => {
+    console.log(e.target.files, "$$$$$")
+    setFil(e.target.files[0])
+  }
+
+  console.log(fil)
+
+  //recuperer les champs a envoyer dans la bdd
+  const [image, setImage] = useState({
+    description: "",
+    title: "",
+    type: "",
+  });
+
+  const onInputChange = (e) => {
+    setImage({ ...image, [e.target.name]: e.target.value });
+  };
+
+  let token = localStorage.getItem("tokentoken")
+
+  console.log(fil)
+  console.log(image)
+
+
+  let file = new FormData();
+  file.append('file', fil)
+  let c = new Blob([JSON.stringify(image)], { type: 'application/json' })
+  file.append('image', c)
+
+
+  //endpoint qui ajoute les utilisateurs
+  const onSubmit = async (e) => {
+
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'multipart/form-data'
+
+      }
+    }
+    e.preventDefault();
+    console.log(Array.from(file))
+    await axios.post(`http://localhost:8888/api/v1/admin/upload`, file, config).then(res => {
+      console.log("Success")
+      alert("✔️ L'image a été ajouter avec succès!");
+      window.location.reload()
+    }).catch(error => {
+      console.log(error)
+      alert(" La taille de l'image ne doit pas dépasser 10 MO");
+    });
+
+  };
+
   return (
     <div>
       <AddPhotoIcon variant="outlined" onClick={handleClickOpen}>
-                    
-                    </AddPhotoIcon>
+      </AddPhotoIcon>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Modifer un utilisateur</DialogTitle>
-        <DialogContent>
-          <React.Fragment>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="firstName"
-            name="firstName"
-            label="First name"
-            fullWidth
-            autoComplete="given-name"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="lastName"
-            name="lastName"
-            label="Last name"
-            fullWidth
-            autoComplete="family-name"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-        <Stack direction="row" alignItems="center" spacing={2}>
-        <Button variant="contained" component="label">
-            Parcourir
-            <input hidden accept="image/*" multiple type="file" />
-        </Button>
-    </Stack>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="address2"
-            name="address2"
-            label="Address line 2"
-            fullWidth
-            autoComplete="shipping address-line2"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="city"
-            name="city"
-            label="City"
-            fullWidth
-            autoComplete="shipping address-level2"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="state"
-            name="state"
-            label="State/Province/Region"
-            fullWidth
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="zip"
-            name="zip"
-            label="Zip / Postal code"
-            fullWidth
-            autoComplete="shipping postal-code"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="country"
-            name="country"
-            label="Country"
-            fullWidth
-            autoComplete="shipping country"
-            variant="standard"
-          />
-        </Grid>
-        
-      </Grid>
-    </React.Fragment>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} style={{borderRadius:'12px' }}variant="outlined" color="error">Annuler</Button>
-          <Button onClick={handleClose} style={{borderRadius:'12px' }}variant="outlined" color="success">Enregistrer</Button>
-        </DialogActions>
+        <form onSubmit={(e) => onSubmit(e)}>
+          <DialogTitle>Ajouter une image</DialogTitle>
+          <DialogContent>
+            <React.Fragment>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="description"
+                    name="description"
+                    label="description"
+                    fullWidth
+                    maxlength="500"
+                    variant="standard"
+                    onChange={(e) => onInputChange(e)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="title"
+                    name="title"
+                    label="title"
+                    fullWidth
+                    autoComplete="family-name"
+                    variant="standard"
+                    onChange={(e) => onInputChange(e)}
+                  />
+                </Grid>
+                <br></br>
+                <br></br>
+                <Grid item xs={6} >
+                  <NativeSelect
+                    name="type"
+                    style={{
+                      width: '100%', height: '20px',
+                      border: 'none',
+                      fontFamily: 'inherit',
+                      fontSize: 'inherit',
+                      marginTop: '8%',
+                    }}
+                    onChange={(e) => onInputChange(e)}>
+                      <option >TYPE ----</option>
+                    <option >PRIVATE</option>
+                    <option >PUBLIC</option>
+                  </NativeSelect>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Input style={{
+                    border: 'none',
+                    fontFamily: 'inherit',
+                    fontSize: 'inherit',
+                    marginTop: '4%'
+                  }}
+                    name="file" type="file" onChange={(e) => handleImage(e)} />
+                </Grid>
+              </Grid>
+            </React.Fragment>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} style={{ borderRadius: '12px' }} variant="outlined" color="error">Annuler</Button>
+            <Button type="submit" style={{ borderRadius: '12px' }} variant="outlined" color="success">Enregistrer</Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   );

@@ -3,37 +3,36 @@ import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
-import {Tooltip} from '@mui/material';
+import { Tooltip } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
-import MenuIcon from '@mui/icons-material/Menu';
+import { useParams } from "react-router-dom";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-//import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeconnexionIcon from '@mui/icons-material/Logout';
 import GitIcon from '@mui/icons-material/GitHub';
 import { mainListItems, secondaryListItems } from './listItems';
-import Weather from '../meteo/Weather';
-import image from '.././image/1.png';
 import { Brightness4, Brightness7, Home, Menu } from '@mui/icons-material';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CurrentUser from './CurrentUser';
+
 import HomeComponents from '../meteo/Components/Home';
+import DetailUser from './manageUser/DetailUser';
+import EditUser from './manageUser/EditUser';
+import EditPasswordAdmin from './manageUser/EditPasswordAdmin';
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        <GitIcon/>
+        <GitIcon />
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -88,136 +87,134 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 
-export default function Dashboard({data}) {
+export default function Dashboard({ data }) {
   console.log(data)
   const toggleDrawer = () => {
     setOpen(!open);
   };
   const [open, setOpen] = useState(false);
-const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(true);
 
-const darkTheme = useMemo(
-  () =>
-    createTheme({
-      palette: {
-        mode: dark ? 'dark' : 'light',
-      },
-    }),
-  [dark]
-);
+  const darkTheme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: dark ? 'dark' : 'light',
+        },
+      }),
+    [dark]
+  );
 
-const deleteoken = () => {
-  localStorage.clear()
-  navigate('/')
-  this.setState({});
-};
-let c =localStorage.getItem("tokenid")
+  const { id } = useParams();
+  const deleteoken = () => {
+    localStorage.clear()
+    navigate('/')
+    this.setState({});
+  };
+  let iduser = localStorage.getItem("tokenid");
 
-const navigate = useNavigate();
-console.log(data)
-if (localStorage.getItem("tokentoken") === null){
-  navigate('/')
-   
-}else{return (
-    <ThemeProvider theme={darkTheme}>
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-        <IconButton
-              
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              edge="start"
+  const navigate = useNavigate();
+  console.log(data)
+  if (localStorage.getItem("tokentoken") === null) {
+    navigate('/')
+
+  } else {
+    return (
+      <ThemeProvider theme={darkTheme}>
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <AppBar position="fixed" open={open}>
+            <Toolbar>
+              <IconButton
+
+                aria-label="open drawer"
+                onClick={toggleDrawer}
+                edge="start"
+                sx={{
+                  marginRight: 5,
+                  ...(open && { display: 'none' }),
+                }}
+              >
+                <Menu />
+              </IconButton>
+              <Tooltip title="Go back to home page">
+                <IconButton sx={{ mr: 1 }} onClick={() => navigate('/dashboard')}>
+                  <Home />
+                </IconButton>
+              </Tooltip>
+              <Typography
+                aria-label="open drawer"
+                edge="start"
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{ flexGrow: 1 }}
+              >
+                Dashboard
+              </Typography>
+
+              <IconButton onClick={() => setDark(!dark)}>
+                {dark ? <Brightness7 /> : <Brightness4 />}
+              </IconButton>
+
+              <DetailUser data={iduser}></DetailUser>
+
+              <IconButton style={{ color: 'white' }} onClick={() => {
+                deleteoken();
+              }}>
+                <DeconnexionIcon />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+
+          <Drawer variant="permanent" style={{ backgroundColor: '#FFFFFF', border: '1px', }} open={open}>
+            <Toolbar
               sx={{
-                marginRight: 5,
-                ...(open && { display: 'none' }),
+                border: '1px',
+                Color: '#666666',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                px: [1],
               }}
             >
-              <Menu />
-            </IconButton>
-            <Tooltip title="Go back to home page">
-              <IconButton sx={{ mr: 1 }} onClick={() => navigate('/dashboard')}>
-                <Home />
+              <IconButton onClick={toggleDrawer}>
+                <ChevronLeftIcon />
               </IconButton>
-            </Tooltip>
-            <Typography
-            aria-label="open drawer"
-            edge="start"
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1 }}
-            >
-              Dashboard
-            </Typography>
-            <IconButton onClick={() => setDark(!dark)}>
-              {dark ? <Brightness7 /> : <Brightness4 />}
-            </IconButton>
-        
-            <IconButton >
-            <Badge badgeContent={4} color="secondary">
-            <CurrentUser></CurrentUser>
-              </Badge>
-            </IconButton>
-            <IconButton style={{color:'white'}} onClick={ ()=> {
-              deleteoken();}}>
-                <DeconnexionIcon/>          
-            </IconButton> 
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" style = {{backgroundColor: '#FFFFFF', border:'1px',}} open={open}>
-          <Toolbar
+            </Toolbar>
+            <Divider />
+            <List component="nav">
+              {mainListItems}
+              <Divider sx={{ my: 1 }} />
+              {secondaryListItems}
+              <EditUser data={iduser}></EditUser>
+              <EditPasswordAdmin data={iduser}></EditPasswordAdmin>
+            </List>
+          </Drawer>
+          <Box
+            component="main"
             sx={{
-              border:'1px',
-            Color:'#666666',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.grey[100]
+                  : theme.palette.grey[900],
+              flexGrow: 1,
+              height: '100vh',
+              overflow: 'auto',
             }}
-
           >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            {mainListItems}
-            <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
-          </List>
-        </Drawer>
-
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-          }}
-        >
-          <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={1}>
-              
-             
-                <div style={{marginTop:'-5%',marginLeft:'10%'}} >
-                <HomeComponents></HomeComponents>
+            <Toolbar />
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+              <Grid container spacing={1}>
+                <div style={{ marginTop: '-5%', marginLeft: '10%' }} >
+                  <HomeComponents></HomeComponents>
                 </div>
-                
-            </Grid>
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
-          
+              </Grid>
+              <Copyright sx={{ pt: 4 }} />
+            </Container>
+          </Box>
         </Box>
-      </Box>
-    </ThemeProvider>
-  );
-}
+      </ThemeProvider>
+    );
+  }
 }

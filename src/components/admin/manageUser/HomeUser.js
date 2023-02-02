@@ -9,35 +9,21 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
-import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-//import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeconnexionIcon from '@mui/icons-material/Logout';
-import AddIcon from '@mui/icons-material/PostAdd';
 import GitIcon from '@mui/icons-material/GitHub';
 import { mainListItems, secondaryListItems } from './../listItems';
-import ListItemText from '@mui/material/ListItemText';
 import ListUser from './ListUser';
-import SignUp from '../../SignUp';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@mui/material';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
 import { Brightness4, Brightness7, Home, Menu } from '@mui/icons-material';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {Tooltip} from '@mui/material'
-import {saveAs} from "file-saver";
-import CurrentUser from '../CurrentUser';
-import AddUser from './AddUser';
+import { Tooltip } from '@mui/material'
+import EditUser from './EditUser';
+import DetailUser from './DetailUser';
+import EditPasswordAdmin from './EditPasswordAdmin';
 
 function Copyright(props) {
   return (
@@ -99,32 +85,38 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 function DashboardContent() {
- 
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
   const [open, setOpen] = useState(false);
-const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(true);
 
-const darkTheme = useMemo(
-  () =>
-    createTheme({
-      palette: {
-        mode: dark ? 'dark' : 'light',
-      },
-    }),
-  [dark]
-);
+  const darkTheme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: dark ? 'dark' : 'light',
+        },
+      }),
+    [dark]
+  );
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const deletetoken = () => {
+    localStorage.clear()
+    navigate('/')
+    this.setState({});
+  };
+  let iduser = localStorage.getItem("tokenid");
   return (
-<ThemeProvider theme={darkTheme}>
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-        <IconButton
-              
+    <ThemeProvider theme={darkTheme}>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" open={open}>
+          <Toolbar>
+            <IconButton
+
               aria-label="open drawer"
               onClick={toggleDrawer}
               edge="start"
@@ -141,8 +133,8 @@ const navigate = useNavigate();
               </IconButton>
             </Tooltip>
             <Typography
-            aria-label="open drawer"
-            edge="start"
+              aria-label="open drawer"
+              edge="start"
               variant="h6"
               noWrap
               component="div"
@@ -150,31 +142,30 @@ const navigate = useNavigate();
             >
               Dashboard
             </Typography>
+
             <IconButton onClick={() => setDark(!dark)}>
               {dark ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
-        
-            <IconButton >
-            <Badge badgeContent={4} color="secondary">
-            <CurrentUser></CurrentUser>
-              </Badge>
-            </IconButton>
-            <IconButton >
-                <DeconnexionIcon/>          
+
+            <DetailUser data={iduser}></DetailUser>
+
+            <IconButton style={{ color: 'white' }} onClick={() => {
+              deletetoken();
+            }}>
+              <DeconnexionIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" style = {{backgroundColor: '#FFFFFF', border:'1px',}} open={open}>
+        <Drawer variant="permanent" style={{ backgroundColor: '#FFFFFF', border: '1px', }} open={open}>
           <Toolbar
             sx={{
-              border:'1px',
-            Color:'#666666',
+              border: '1px',
+              Color: '#666666',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
               px: [1],
             }}
-
           >
             <IconButton onClick={toggleDrawer}>
               <ChevronLeftIcon />
@@ -185,6 +176,8 @@ const navigate = useNavigate();
             {mainListItems}
             <Divider sx={{ my: 1 }} />
             {secondaryListItems}
+            <EditUser data={iduser}></EditUser>
+            <EditPasswordAdmin data={iduser}></EditPasswordAdmin>
           </List>
         </Drawer>
         <Box
@@ -200,14 +193,12 @@ const navigate = useNavigate();
           }}
         >
           <Toolbar />
-          
-              <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-          
+
               <Grid item xs={12}>
-                
-                 <ListUser></ListUser>
-                
+                <ListUser></ListUser>
               </Grid>
             </Grid>
             <Copyright sx={{ pt: 4 }} />

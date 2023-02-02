@@ -7,12 +7,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { blue } from '@mui/material/colors';
+import { blue, green } from '@mui/material/colors';
 import Avatar from '@mui/material/Avatar';
 import UpdateIcon from '@mui/icons-material/Key';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import IconButton from '@mui/material/IconButton';
 import { InputAdornment } from '@material-ui/core';
 import { MdOutlineVisibility } from 'react-icons/md';
@@ -20,7 +17,7 @@ import { MdOutlineVisibilityOff } from 'react-icons/md';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-export default function EditPassword({ data }) {
+export default function EditPasswordAdmin({ data }) {
 
   const [open, setOpen] = React.useState(false);
 
@@ -44,13 +41,13 @@ export default function EditPassword({ data }) {
   const onInputChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
-  console.log(user.oldPassword)
+
   useEffect(() => {
     loadUser();
   }, []);
 
   let token = localStorage.getItem("tokentoken")
-
+  //endpoint qui permet de modifier un motde passe
   const onSubmit = async (e) => {
     //comparer les 2 mots de passes s'il sont identiques
     var champ_1 = (document.getElementById('mdp1').value);
@@ -108,11 +105,10 @@ export default function EditPassword({ data }) {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-
       localStorage.setItem('token', values.email + values.password)
-
     },
   });
+
   //Récupérer les infos de l'utilisateur seléctionner
   const loadUser = async () => {
     let config = {
@@ -130,14 +126,11 @@ export default function EditPassword({ data }) {
 
   return (
     <div>
-      <ListItemButton onClick={handleClickOpen}>
-        <ListItemIcon>
-          <Avatar sx={{ backgroundColor: 'white', color: blue[600] }}>
-            <UpdateIcon variant="outlined" onClick={handleClickOpen}></UpdateIcon>
-          </Avatar>
-        </ListItemIcon>
-        <ListItemText primary="Modifier Mot de passe" />
-      </ListItemButton>
+      <Button style={{ borderRadius: '80%' }} >
+        <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+          <UpdateIcon variant="outlined" onClick={handleClickOpen}></UpdateIcon>
+        </Avatar>
+      </Button>
 
       <Dialog open={open} onClose={handleClose} >
         <form onSubmit={(e) => onSubmit(e)}>
@@ -147,7 +140,9 @@ export default function EditPassword({ data }) {
           </div>
           <DialogContent>
             <React.Fragment >
+
               <Grid container spacing={3}>
+
                 <Grid item xs={12}>
                   <TextField
                     required

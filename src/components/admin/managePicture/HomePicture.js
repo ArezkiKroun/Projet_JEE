@@ -9,23 +9,14 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
-import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-//import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeconnexionIcon from '@mui/icons-material/Logout';
-import GitIcon from '@mui/icons-material/GitHub';
 import DownloadIcon from '@mui/icons-material/Download';
 import { mainListItems, secondaryListItems } from '.././listItems';
 import ListItemText from '@mui/material/ListItemText';
-
 import Button from '@mui/material/Button';
-import CameraIcon from '@mui/icons-material/PhotoCamera';
-import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -35,32 +26,18 @@ import DeletePicture from './DeletePicture';
 import { Brightness4, Brightness7, Home, Menu } from '@mui/icons-material';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {Tooltip} from '@mui/material'
-import {saveAs} from "file-saver";
-import CurrentUser from '../CurrentUser';
-import AddPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { Tooltip } from '@mui/material'
+import { saveAs } from "file-saver";
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import AddPicture from './AddPicture';
-
-
-
-
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        <GitIcon/>
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+import EditUser from '../manageUser/EditUser';
+import DetailUser from '../manageUser/DetailUser';
+import EditPasswordAdmin from '../manageUser/EditPasswordAdmin';
+import { useEffect } from "react";
+import axios from "axios";
+import ZoomImage from './ZoomImage';
 
 const drawerWidth = 240;
 
@@ -109,13 +86,13 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 function DashboardContent() {
- 
-    const toggleDrawer = () => {
-      setOpen(!open);
-    };
-    const [open, setOpen] = useState(false);
+
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
+  const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
-  
+
   const darkTheme = useMemo(
     () =>
       createTheme({
@@ -128,18 +105,61 @@ function DashboardContent() {
 
   const navigate = useNavigate();
 
-  const handleClick = ()=>{
-    let url = "https://source.unsplash.com/random"
-    saveAs(url, "Twitter-logo");
-   }
+  const downloadimage = (url, nom) => {
+    saveAs(url, nom);
+  }
+
+
+  const deletetoken = () => {
+    localStorage.clear()
+    navigate('/')
+    this.setState({});
+  };
+
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    loadPictures()
+  }, []);
+
+  let token = localStorage.getItem("tokentoken")
+  let iduser = localStorage.getItem("tokenid");
+
+  //endpoint qui recupere la liste des images
+  const loadPictures = async () => {
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+      }
+    }
+    console.log(config)
+    await axios.get('http://localhost:8888/api/v1/imagesList', config).then(res => {
+
+      console.log("Success")
+      setImages(res.data);
+      console.log(res.data)
+    }).catch(error => {
+      console.log(error)
+    });
+
+  };
+
+  //Filtre de rechrche
+  const [searchField, setsearchField] = useState('');
+
+  const filterimages = images.filter(local => (
+    local.title.toLowerCase().includes(searchField.toLowerCase())
+  ));
+
   return (
+
     <ThemeProvider theme={darkTheme}>
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-        <IconButton
-              
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" open={open}>
+          <Toolbar>
+            <IconButton
+
               aria-label="open drawer"
               onClick={toggleDrawer}
               edge="start"
@@ -156,8 +176,8 @@ function DashboardContent() {
               </IconButton>
             </Tooltip>
             <Typography
-            aria-label="open drawer"
-            edge="start"
+              aria-label="open drawer"
+              edge="start"
               variant="h6"
               noWrap
               component="div"
@@ -165,30 +185,31 @@ function DashboardContent() {
             >
               Dashboard
             </Typography>
+
             <IconButton onClick={() => setDark(!dark)}>
               {dark ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
-            <IconButton >
-            <Badge badgeContent={4} color="secondary">
-           <CurrentUser></CurrentUser>
-              </Badge>
-            </IconButton>
-            <IconButton >
-                <DeconnexionIcon/>          
+
+            <DetailUser data={iduser}></DetailUser>
+
+            <IconButton style={{ color: 'white' }} onClick={() => {
+              deletetoken();
+            }}>
+              <DeconnexionIcon />
+
             </IconButton>
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" style = {{backgroundColor: '#FFFFFF', border:'1px',}} open={open}>
+        <Drawer variant="permanent" style={{ backgroundColor: '#FFFFFF', border: '1px', }} open={open}>
           <Toolbar
             sx={{
-              border:'1px',
-            Color:'#666666',
+              border: '1px',
+              Color: '#666666',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
               px: [1],
             }}
-
           >
             <IconButton onClick={toggleDrawer}>
               <ChevronLeftIcon />
@@ -199,6 +220,8 @@ function DashboardContent() {
             {mainListItems}
             <Divider sx={{ my: 1 }} />
             {secondaryListItems}
+            <EditUser data={iduser}></EditUser>
+            <EditPasswordAdmin data={iduser}></EditPasswordAdmin>
           </List>
         </Drawer>
         <Box
@@ -215,81 +238,73 @@ function DashboardContent() {
         >
           <Toolbar />
           <Container sx={{ py: 8 }} maxWidth="md">
-          {/* End hero unit */}
-          
-          <Container maxWidth="lg" sx={{ mt: 5, mb: 5}}>
+            <Container maxWidth="lg" sx={{ mt: 5, mb: 5 }}>
+              <Grid container spacing={8}>
+                <Grid item xs={12} md={4} lg={4} >
+                  <ListItemText primary="Liste des images" />
+                </Grid>
 
+                <Grid item xs={12} md={4} lg={4}>
+                  <TextField
+                    onChange={(e) => setsearchField(e.target.value)}
+                    label="Recherche"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment>
+                          <IconButton>
+                            <SearchIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
 
-            <Grid container spacing={8}>
-
-              <Grid item xs={12} md={4} lg={4} >
-                <ListItemText primary="Liste des images" />
-              </Grid>
-
-
-              <Grid item xs={12}md={4} lg={4}>
-                <TextField
-                  label="Recherche"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment>
-                        <IconButton>
-                          <SearchIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4} lg={4} >
-              
-                <Button>
-                
+                <Grid item xs={12} md={4} lg={4} >
+                  <Button>
                     <AddPicture></AddPicture>
-                   
-                </Button>
-                
+                  </Button>
+                </Grid>
               </Grid>
-              </Grid>  
-              </Container>
-          <Grid container spacing={5}>
-            {cards.map((card) => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
-                
+            </Container>
+
+            <Grid style={{ marginTop: '-12%' }} container spacing={5}>
+
+              {filterimages.sort((a, b) => a.title > b.title ? 1 : -1).map((row, index) => (
+                <Grid item key={index} xs={12} sm={6} md={4}>
+
                   <CardMedia
                     component="img"
                     sx={{
                       // 16:9
                       pt: '56.25%',
-                      width:'100%',
-                      height:'70%'                 
+                      width: '100%',
+                      height: '70%'
                     }}
-                    image="https://source.unsplash.com/random"
-                    alt="random"
+                    image={row.url}
+                    alt="image"
                   />
+
+                  <ZoomImage data={row.id}></ZoomImage>
+
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography gutterBottom variant="h5" component="h2">
-                      Heading
+                      {row.title}
                     </Typography>
                     <Typography>
-                      This is a media card. You can use this section to describe the
-                      content.
-                    </Typography>
-                    <Typography>
-                        <DownloadIcon style={{}}onClick={handleClick}></DownloadIcon>
+                      <DownloadIcon style={{}} onClick={() => { downloadimage(row.url, row.title); }}></DownloadIcon>
                     </Typography>
                   </CardContent>
-                  <CardActions>
-                    <Button size="small" ><DetailPicture></DetailPicture></Button>
-                    <Button size="small"><EditPicture></EditPicture></Button>
-                    <Button size="small"><DeletePicture></DeletePicture></Button>
+                  <CardActions style={{width:'10%'}}>
+                    <DetailPicture data={row.id}></DetailPicture>
+                    <EditPicture data={row.id}></EditPicture>
+                    <DeletePicture data={row.id}></DeletePicture>
                   </CardActions>
-                
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
         </Box>
       </Box>
     </ThemeProvider>

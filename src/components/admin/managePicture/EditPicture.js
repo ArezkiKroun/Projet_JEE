@@ -1,17 +1,16 @@
-import * as React from 'react';
+
+import React from "react";
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-export default function EditPicture() {
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { NativeSelect } from "@mui/material";
+export default function EditPicture({ data }) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -22,110 +21,121 @@ export default function EditPicture() {
     setOpen(false);
   };
 
+  //recuperer les champs a envoyer dans la bdd
+  const [image, setImage] = useState({
+    description: "",
+    title: "",
+    type: "",
+  });
+  console.log(image)
+  const { description, title, type } = image;
+
+  const onInputChange = (e) => {
+    setImage({ ...image, [e.target.name]: e.target.value });
+  };
+
+  useEffect(() => {
+    loadPicture();
+  }, []);
+
+  let token = localStorage.getItem("tokentoken")
+
+  //endpoint qui modifie les images
+  const onSubmit = async (e) => {
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+      }
+    }
+    e.preventDefault();
+    await axios.put(`http://localhost:8888/api/v1/admin/images/${data}`, image, config).then(res => {
+      console.log("Success")
+      alert("✔️ L'image a été modifier avec succès!");
+      window.location.reload()
+    }).catch(error => {
+      console.log(error)
+    });
+
+  };
+
+  //Récupérer les infos de l'image seléctionner
+  const loadPicture = async () => {
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+      }
+    }
+    await axios.get(`http://localhost:8888/api/v1/images/${data}`, config).then(res => {
+      console.log("Success")
+      setImage(res.data);
+    }).catch(error => {
+      console.log(error)
+    });
+  };
+
   return (
     <div>
-      <Button variant="outlined" style={{borderRadius:'12px' ,backgroundColor:'blue',color:'white'}} onClick={handleClickOpen}>
+      <Button variant="outlined" style={{ borderRadius: '12px', backgroundColor: 'blue', color: 'white' }} onClick={handleClickOpen}>
         EDIT
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Modifer un utilisateur</DialogTitle>
-        <DialogContent>
-          <React.Fragment>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="firstName"
-            name="firstName"
-            label="First name"
-            fullWidth
-            autoComplete="given-name"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="lastName"
-            name="lastName"
-            label="Last name"
-            fullWidth
-            autoComplete="family-name"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            required
-            id="address1"
-            name="address1"
-            label="Address line 1"
-            fullWidth
-            autoComplete="shipping address-line1"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="address2"
-            name="address2"
-            label="Address line 2"
-            fullWidth
-            autoComplete="shipping address-line2"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="city"
-            name="city"
-            label="City"
-            fullWidth
-            autoComplete="shipping address-level2"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="state"
-            name="state"
-            label="State/Province/Region"
-            fullWidth
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="zip"
-            name="zip"
-            label="Zip / Postal code"
-            fullWidth
-            autoComplete="shipping postal-code"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="country"
-            name="country"
-            label="Country"
-            fullWidth
-            autoComplete="shipping country"
-            variant="standard"
-          />
-        </Grid>
-        
-      </Grid>
-    </React.Fragment>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} style={{borderRadius:'12px' }}variant="outlined" color="error">Annuler</Button>
-          <Button onClick={handleClose} style={{borderRadius:'12px' }}variant="outlined" color="success">Enregistrer</Button>
-        </DialogActions>
+        <form onSubmit={(e) => onSubmit(e)}>
+          <DialogTitle>Modifier l'image</DialogTitle>
+          <DialogContent>
+            <React.Fragment>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="description"
+                    name="description"
+                    label="description"
+                    fullWidth
+                    autoComplete="given-name"
+                    variant="standard"
+                    value={description}
+                    onChange={(e) => onInputChange(e)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="title"
+                    name="title"
+                    label="title"
+                    fullWidth
+                    autoComplete="family-name"
+                    variant="standard"
+                    value={title}
+                    onChange={(e) => onInputChange(e)}
+                  />
+                </Grid>
+                <br></br>
+                <br></br>
+                <Grid item xs={6} >
+                  <NativeSelect
+                    name="type" style={{
+                      width: '100%', height: '20px',
+                      border: 'none',
+                      fontFamily: 'inherit',
+                      fontSize: 'inherit',
+                      marginTop: '8%',
+
+                    }}
+                    defaultValue={type}
+                    onChange={(e) => onInputChange(e)}>
+                    <option >PRIVATE</option>
+                    <option >PUBLIC</option>
+                  </NativeSelect>
+                </Grid>
+              </Grid>
+            </React.Fragment>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} style={{ borderRadius: '12px' }} variant="outlined" color="error">Annuler</Button>
+            <Button type="submit" style={{ borderRadius: '12px' }} variant="outlined" color="success">Enregistrer</Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   );
